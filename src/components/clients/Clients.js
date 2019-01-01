@@ -1,26 +1,38 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
-class Clients extends Component {
-  render() {
-    const clients = [
-      {
-        id: "343234",
-        firstName: "Kevin",
-        lastName: "Johnson",
-        email: "kevin@gmail.com",
-        phone: "333-333-3333",
-        balance: "30"
-      },
+import PropTypes from "prop-types";
+import { compose } from "redux";
+import { connect } from "react-redux";
+import { firestoreConnect } from "react-redux-firebase";
+import Spinner from "../layout/Spinner";
 
-      {
-        id: "343334",
-        firstName: "Test",
-        lastName: "Testson",
-        email: "test@gmail.com",
-        phone: "222-333-3333",
-        balance: "350"
-      }
-    ];
+class Clients extends Component {
+  state = {
+    totalowed: null
+  };
+
+  // Gets clients when they come in and loops through them
+  // Adds all the balances together to get total
+  static getDerivedStateFromProps(props, state) {
+    // Get clients from firestore (props) // Inside this method no this.props
+    const { clients } = props;
+    // Checking that there are clients
+    if (clients) {
+      // Add balances
+      const total = clients.reduce((total, client) => {
+        return total + parseFloat(client.balance.toString());
+      }, 0); // starting parameter 0
+
+      // return state totalOwed
+      return { totalOwed: total };
+    }
+    // if there isn't clients return null (state)
+    return null;
+  }
+  render() {
+    const { clients } = this.props;
+    // Pulling totalOwed out of the state
+    const { totalOwed } = this.state;
 
     if (clients) {
       return (
@@ -32,7 +44,14 @@ class Clients extends Component {
                 <i className="fas fa-users" /> Clients{" "}
               </h2>
             </div>
-            <div className="cold-md-6" />
+            <div className="cold-md-6">
+              <h5 className="text-right text-secondary">
+                Total Owed{" "}
+                <span className="text-primary">
+                  €{parseFloat(totalOwed).toFixed(2)}
+                </span>
+              </h5>
+            </div>
           </div>
           <table className="table table-striped">
             <thead className="thead-inverse">
@@ -66,9 +85,22 @@ class Clients extends Component {
         </div>
       );
     } else {
-      return <h1>Loading..</h1>;
+      return <Spinner />;
     }
   }
 }
 
-export default Clients;
+Clients.propTypes = {
+  firestore: PropTypes.object.isRequired,
+  // Don't need is required because it is going to give an error
+  clients: PropTypes.array
+};
+
+// export default Clients;
+// Redux panel tree firestore -> ordered -> clients
+export default compose(
+  firestoreConnect([{ collection: "clients" }]),
+  connect((state, props) => ({
+    clients: state.firestore.ordered.clients
+  }))
+)(Clients);
