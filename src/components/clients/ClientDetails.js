@@ -8,8 +8,69 @@ import Spinner from "../layout/Spinner";
 import classnames from "classnames";
 
 class ClientDetails extends Component {
+  // State to control form
+  state = {
+    showBalanceUpdate: false,
+    balanceUpdateAmount: ""
+  };
+  // Update balance
+  balanceSubmit = e => {
+    e.preventDefault();
+    const { client, firestore } = this.props;
+    const { balanceUpdateAmount } = this.state;
+
+    const clientUpdate = {
+      balance: parseFloat(balanceUpdateAmount)
+    };
+
+    // Update in firestore
+    firestore.update({ collection: "clients", doc: client.id }, clientUpdate);
+    // console.log(this.state.balanceUpdateAmount);
+  };
+  // Delete client
+  onDeleteClick = () => {
+    const { client, firestore, history } = this.props;
+
+    firestore
+      .delete({ collection: "clients", doc: client.id })
+      .then(history.push("/"));
+  };
+
+  onChange = e => this.setState({ [e.target.name]: e.target.value });
+
   render() {
     const { client } = this.props;
+    // Pulling these out of the state by using destructuring
+    const { showBalanceUpdate, balanceUpdateAmount } = this.state;
+    // Initializing variable
+    let balanceForm = "";
+    // If balance form should display
+    if (showBalanceUpdate) {
+      balanceForm = (
+        <form onSubmit={this.balanceSubmit}>
+          <div className="input-group">
+            <input
+              type="text"
+              className="form-control"
+              name="balanceUpdateAmount"
+              placeholder="Add New Balance"
+              // Coming from the state (this.state.balanceUpdateAmount)
+              value={balanceUpdateAmount}
+              onChange={this.onChange}
+            />
+            <div className="input-group-append">
+              <input
+                type="submit"
+                value="Update"
+                className="btn btn-outline-dark"
+              />
+            </div>
+          </div>
+        </form>
+      );
+    } else {
+      balanceForm = null;
+    }
     // If there is client return client details else return spinner
     if (client) {
       return (
@@ -26,7 +87,9 @@ class ClientDetails extends Component {
                 <Link to={`/client/edit/${client.id}`} className="btn btn-dark">
                   Edit
                 </Link>
-                <button className="btn btn-danger">Delete</button>
+                <button onClick={this.onDeleteClick} className="btn btn-danger">
+                  Delete
+                </button>
               </div>
             </div>
           </div>
@@ -56,9 +119,22 @@ class ClientDetails extends Component {
                     >
                       {" "}
                       €{parseFloat(client.balance).toFixed(2)}
-                    </span>
+                    </span>{" "}
+                    <small>
+                      <a
+                        href="#!"
+                        onClick={() =>
+                          this.setState({
+                            showBalanceUpdate: !this.state.showBalanceUpdate
+                          })
+                        }
+                      >
+                        <i className="fas fa-pencil-alt" />
+                      </a>
+                    </small>
                   </h3>
-                  {/* Todo: balanceform */}
+                  {/* Balanceform */}
+                  {balanceForm}
                 </div>
               </div>
               <hr />
