@@ -23,9 +23,9 @@ class Settings extends Component {
   };
 
   allowRegistrationChange = () => {
-    const { setAllowRegistrationChange } = this.props;
+    const { setAllowRegistration } = this.props;
     // Calling the function from the settingsAction then settingsReducer and toggles the state true to false / false to true
-    setAllowRegistrationChange();
+    setAllowRegistration();
   };
 
   render() {
@@ -54,7 +54,7 @@ class Settings extends Component {
                   type="checkbox"
                   name="allowRegistration"
                   checked={!!allowRegistration}
-                  onChange={this.allowRegistrationonChange}
+                  onChange={this.allowRegistrationChange}
                 />
               </div>
 
