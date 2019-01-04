@@ -21,6 +21,7 @@ class EditClient extends Component {
     e.preventDefault();
 
     const { client, firestore, history } = this.props;
+
     // Updated client
     const updClient = {
       firstName: this.firstNameInput.current.value,
@@ -41,6 +42,7 @@ class EditClient extends Component {
   };
   render() {
     const { client } = this.props;
+    const { disableBalanceOnEdit } = this.props.settings;
 
     if (client) {
       return (
@@ -122,6 +124,7 @@ class EditClient extends Component {
                     //   onChange={this.onChange}
                     ref={this.balanceInput}
                     defaultValue={client.balance}
+                    disabled={disableBalanceOnEdit}
                   />
                 </div>
 
@@ -151,8 +154,10 @@ export default compose(
     // Storing as client because clients state already exist
     { collection: "clients", storeAs: "client", doc: props.match.params.id }
   ]),
-  connect(({ firestore: { ordered } }, props) => ({
+  connect(({ firestore: { ordered }, settings }, props) => ({
+    // Destructuring ordered, settings
     // First item of the array to get single client by the id props.match.params.id
-    client: ordered.client && ordered.client[0]
+    client: ordered.client && ordered.client[0],
+    settings // same thing as settings: settings
   }))
 )(EditClient);
