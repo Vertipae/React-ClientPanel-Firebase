@@ -1,3 +1,9 @@
+## Link: https://reactclientpanel-e9b54.firebaseapp.com/
+
+### Note: Works better in Chrome browser
+
+Uses: Redux and firestore
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
